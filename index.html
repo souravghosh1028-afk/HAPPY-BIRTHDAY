@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Happy 21 — Aditi</title>
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+
+<style>
+  :root{
+    --bg:#060006;
+    --pink:#ff6aa6;
+    --violet:#9774ff;
+    --gold:#ffd166;
+  }
+  html,body{height:100%;margin:0;font-family:Inter, "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial;}
+  body{
+    background:
+      radial-gradient(circle at 10% 10%, rgba(255,100,160,0.04), transparent 12%),
+      linear-gradient(180deg, rgba(8,2,20,1) 0%, rgba(3,0,8,1) 100%);
+    color:#fff; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  canvas#particles{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  .screen{ min-height:100vh; width:100%; display:flex; align-items:center; justify-content:center; padding:28px; box-sizing:border-box; position:relative; z-index:2;}
+  .hidden{ display:none; }
+
+  /* FRONT */
+  .hero{ max-width:980px; width:100%; text-align:center; padding:36px; box-sizing:border-box; position:relative; z-index:3;}
+  .title{
+    font-weight:900; font-size:clamp(36px, 7vw, 82px);
+    background: linear-gradient(90deg, var(--pink), var(--violet), var(--gold));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 20px 50px rgba(150,50,120,0.08);
+    transform-origin:center;
+    margin:0;
+  }
+  .subtitle{
+    font-family: "Dancing Script", "Great Vibes", cursive;
+    font-size:clamp(16px, 2.7vw, 26px);
+    color:#ffe7f2; opacity:0.98; margin-top:8px;
+  }
+
+  .aditiName{
+    margin-top:8px; font-weight:900; font-size:clamp(34px,8vw,56px);
+    color:transparent; -webkit-background-clip:text; background-clip:text;
+    background-image: linear-gradient(90deg, var(--pink), var(--violet));
+    text-shadow: 0 18px 40px rgba(180,60,150,0.12);
+  }
+
+  /* heart-photo */
+  .heart-frame{
+    width:220px; height:220px; border-radius:50%; margin:18px auto 6px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 30px 100px rgba(140,40,120,0.18);
+    background: radial-gradient(circle at 30% 30%, rgba(255,200,230,0.06), transparent 40%);
+    border: 6px solid rgba(255,255,255,0.03);
+  }
+  .heart-photo{
+    width:190px; height:190px; border-radius:50%; object-fit:cover; border:6px solid rgba(255,255,255,0.03);
+    box-shadow:0 20px 80px rgba(0,0,0,0.6);
+  }
+  .heart-overlay{ position:absolute; width:240px; height:240px; left:50%; transform:translateX(-50%); top:50%; transform-origin:center; pointer-events:none; opacity:0.12; filter:blur(6px); }
+
+  .cake-wrap{ margin-top:10px; display:flex; justify-content:center; gap:10px; align-items:center; }
+  .age-badge{ background:linear-gradient(135deg,var(--pink),var(--gold)); color:#200; font-weight:900; padding:6px 10px; border-radius:999px; box-shadow:0 14px 40px rgba(255,100,160,0.1); }
+
+  .controls{ margin-top:18px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; z-index:5; }
+  .btn{
+    padding:12px 18px; border-radius:14px; border:0; cursor:pointer; font-weight:800;
+    background:linear-gradient(90deg,var(--pink),var(--violet)); color:white; box-shadow:0 14px 50px rgba(120,40,120,0.12);
+    transition: transform .16s ease, box-shadow .16s;
+  }
+  .btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); box-shadow:none; color:#fff; font-weight:700; }
+  .btn:active{ transform:translateY(2px); }
+
+  /* Hub */
+  .hub{ width:100%; max-width:1200px; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; }
+  .hub-top{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .hub-stage{ width:100%; height:68vh; max-height:820px; min-height:480px; display:flex; align-items:center; justify-content:center; position:relative; margin-top:12px; }
+  .main-photo{ width:420px; height:420px; border-radius:22px; object-fit:cover; box-shadow:0 40px 140px rgba(0,0,0,0.6); border:6px solid rgba(255,255,255,0.03); z-index:3; transform-origin:center; }
+  .orbit{ position:absolute; width:760px; height:760px; border-radius:50%; z-index:1; pointer-events:none; }
+
+  .orb-item{ position:absolute; width:128px; height:128px; border-radius:18px; overflow:hidden; cursor:pointer; transform-origin:center center;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; border:6px solid rgba(255,255,255,0.02);
+    box-shadow:0 22px 60px rgba(0,0,0,0.6); z-index:4; background:#222; }
+  .orb-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .orb-label{ position:absolute; transform:translate(-50%,-170%); left:50%; top:0; white-space:nowrap; font-weight:900; font-size:13px;
+    color:transparent; -webkit-background-clip:text; background-clip:text; background-image:linear-gradient(90deg,var(--pink),var(--violet)); text-shadow:0 8px 30px rgba(0,0,0,0.45);
+  }
+  .orb-item:hover{ transform:scale(1.08); box-shadow:0 40px 120px rgba(120,40,120,0.5); }
+
+  /* poem */
+  .poem-page{ width:100%; max-width:980px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); border-radius:16px; padding:20px; box-shadow:0 40px 120px rgba(0,0,0,0.6); }
+  .poem-top{ display:flex; align-items:center; gap:18px; }
+  .poem-thumb{ width:180px; height:180px; border-radius:12px; object-fit:cover; border:4px solid rgba(255,255,255,0.03); box-shadow:0 30px 80px rgba(0,0,0,0.6); }
+  .poem-heading{ font-weight:900; font-size:26px; background:linear-gradient(90deg,var(--pink),var(--violet),var(--gold)); -webkit-background-clip:text; color:transparent; }
+  .poem-box{ margin-top:12px; padding:18px; border-radius:12px; background:rgba(0,0,0,0.45); color:#ffd9a8; min-height:160px; font-size:18px; line-height:1.6; white-space:pre-line; }
+
+  /* envelope */
+  .envelope-wrap{ width:100%; max-width:720px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+  .envelope{ width:480px; height:300px; border-radius:16px; position:relative; overflow:visible; background:linear-gradient(180deg,#fff6fb,#fff0f7); box-shadow:0 40px 120px rgba(255,90,140,0.12); display:flex; align-items:center; justify-content:center; }
+  .letter{ width:420px; height:240px; background:linear-gradient(180deg,#fff,#fffdf6); border-radius:12px; padding:20px; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; transform-origin:top center; }
+  .final-title{ font-weight:900; font-size:20px; color:#b7006a; }
+  .final-name{ font-weight:900; font-size:36px; color:#3a1b32; }
+  .final-sub{ color:#4f3a3a; font-size:16px; }
+
+  @media (max-width:1100px){
+    .main-photo{ width:360px; height:360px; }
+    .orbit{ width:560px; height:560px; }
+    .orb-item{ width:110px; height:110px; }
+  }
+  @media (max-width:700px){
+    .main-photo{ width:220px; height:220px; }
+    .orbit{ width:360px; height:360px; }
+    .orb-item{ width:82px; height:82px; border-radius:12px; }
+    .poem-top{ flex-direction:column; align-items:center; }
+    .poem-thumb{ width:120px; height:120px; }
+    .envelope{ width:320px; height:220px; }
+    .letter{ width:290px; height:180px; }
+  }
+
+  .pulse { animation: pulseBtn 1.8s infinite; }
+  @keyframes pulseBtn{ 0%{ transform:scale(1); } 50%{ transform:scale(1.04); } 100%{ transform:scale(1); } }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- FRONT -->
+<section id="intro" class="screen">
+  <div class="hero" role="main" aria-labelledby="mainTitle">
+    <h1 id="mainTitle" class="title">Happy 21st Birthday</h1>
+    <div id="subtitle" class="subtitle">My Dearest Friend</div>
+
+    <!-- Aditi -->
+    <div id="aditiName" class="aditiName">MEHULI 💖</div>
+
+    <div class="heart-frame" aria-hidden="true">
+      <img src="aditi_photo.jpg" alt="Aditi" class="heart-photo" id="aditiPhoto" />
+      <svg class="heart-overlay" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <path d="M50 90 C15 70 5 45 20 30 C35 15 50 28 50 28 C50 28 65 15 80 30 C95 45 85 70 50 90 Z" fill="#ff6aa6" opacity="0.18"/>
+      </svg>
+    </div>
+
+    <div class="cake-wrap" aria-hidden="true">
+      <img src="cake.png" alt="cake" style="width:110px;height:86px;object-fit:contain;filter:drop-shadow(0 30px 60px rgba(255,90,150,0.12));" />
+      <div class="age-badge">21</div>
+    </div>
+
+    <div class="controls">
+      <button id="enterBtn" class="btn pulse">Enter the Surprise</button>
+      <button id="musicBtn" class="btn ghost">Play Music</button>
+    </div>
+    <div style="margin-top:12px; color:rgba(255,255,255,0.6); font-size:13px;"> tap "Play Music".</div>
+  </div>
+</section>
+
+<!-- HUB -->
+<section id="hub" class="screen hidden" aria-hidden="true">
+  <div class="hub">
+    <div class="hub-top">
+      <div>
+        <div style="font-weight:900; font-size:20px; color:transparent; background:linear-gradient(90deg,var(--pink),var(--violet)); -webkit-background-clip:text;">Memory Hub — Tap any image</div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-top:6px;">Each photo Holds our Memory— tap to open </div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.6); margin-top:6px;">don't click on finish button their click on the finish button here after all complete </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn ghost" id="backHomeBtn">Home</button>
+        <button class="btn" id="finishBtn">Finish</button>
+      </div>
+    </div>
+
+    <div class="hub-stage" id="hubStage">
+      <img id="mainPhoto" class="main-photo" src="main.jpg" alt="Main memory">
+
+      <div class="orbit" id="orbitRing"></div>
+
+      <!-- 8 orb items (images only; positions set by JS to avoid overlap) -->
+      <div id="orb1" class="orb-item" data-id="1"><img src="photo1.jpg" alt="1"><div class="orb-label">School Days</div></div>
+      <div id="orb2" class="orb-item" data-id="2"><img src="photo2.jpg" alt="2"><div class="orb-label">Strangers → Friends</div></div>
+      <div id="orb3" class="orb-item" data-id="3"><img src="photo3.jpg" alt="3"><div class="orb-label">Friends → Best</div></div>
+      <div id="orb4" class="orb-item" data-id="4"><img src="photo4.jpg" alt="4"><div class="orb-label">Best → Forever</div></div>
+      <div id="orb5" class="orb-item" data-id="5"><img src="photo5.jpg" alt="5"><div class="orb-label">Travelling</div></div>
+      <div id="orb6" class="orb-item" data-id="6"><img src="photo6.jpg" alt="6"><div class="orb-label">Fooding</div></div>
+      <div id="orb7" class="orb-item" data-id="7"><img src="photo7.jpg" alt="7"><div class="orb-label">Special Moments</div></div>
+      <div id="orb8" class="orb-item" data-id="8"><img src="photo8.jpg" alt="8"><div class="orb-label">The Bond</div></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- POEM -->
+<section id="poem" class="screen hidden" aria-hidden="true">
+  <div class="poem-page">
+    <div class="poem-top">
+      <img id="poemThumb" class="poem-thumb" src="main.jpg" alt="thumb">
+      <div style="flex:1;">
+        <div id="poemHeading" class="poem-heading">Heading</div>
+        <div style="margin-top:8px; color:rgba(255,255,255,0.7); font-size:13px;">💌 From your one & only</div>
+      </div>
+    </div>
+
+    <div id="poemBox" class="poem-box">Loading...</div>
+
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:12px;">
+      <button id="backHubBtn" class="btn ghost">Back to Memories</button>
+      <button id="finishFromPoem" class="btn">Finish</button>
+    </div>
+  </div>
+</section>
+
+<!-- FINISH -->
+<section id="finish" class="screen hidden" aria-hidden="true">
+  <div class="envelope-wrap">
+    <div class="envelope" id="envelope">
+      <div class="letter" id="letter">
+        <div class="final-title">This is all about your birthday,</div>
+        <div class="final-name">Aditi 💖</div>
+        <div class="final-sub">Thank you for being the reason of my smile.</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:12px;">
+      <button id="restartBtn" class="btn">Restart</button>
+      <button id="shareBtn" class="btn ghost">Share (optional)</button>
+    </div>
+  </div>
+</section>
+
+<!-- Audio: single <audio> we swap sources for each section -->
+<audio id="bgm" loop preload="auto">
+  <source id="bgmSource" src="front.mp3" type="audio/mpeg">
+  Your browser does not support audio.
+</audio>
+
+<script>
+/* ============================
+   Particles background (soft)
+   ============================ */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = innerWidth, H = canvas.height = innerHeight;
+window.addEventListener('resize', ()=>{ W = canvas.width = innerWidth; H = canvas.height = innerHeight; positionOrbit(); });
+const parts = [];
+for(let i=0;i<120;i++){
+  parts.push({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.8+0.6, vx:(Math.random()-0.5)*0.2, vy: Math.random()*0.5+0.15,
+    hue: 300 + Math.random()*60, alpha: 0.08 + Math.random()*0.3
+  });
+}
+function particlesLoop(){
+  ctx.clearRect(0,0,W,H);
+  for(const p of parts){
+    p.x += p.vx; p.y += p.vy;
+    if(p.y > H+20){ p.y = -20; p.x = Math.random()*W; }
+    const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*6);
+    g.addColorStop(0, `hsla(${p.hue},90%,60%,${p.alpha})`);
+    g.addColorStop(1, `hsla(${p.hue},60%,40%,0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r*8,0,Math.PI*2);
+    ctx.fill();
+  }
+  requestAnimationFrame(particlesLoop);
+}
+particlesLoop();
+
+/* ============================
+   DOM refs & helpers
+   ============================ */
+const intro = document.getElementById('intro');
+const hub = document.getElementById('hub');
+const poem = document.getElementById('poem');
+const finish = document.getElementById('finish');
+
+const enterBtn = document.getElementById('enterBtn');
+const musicBtn = document.getElementById('musicBtn');
+const backHomeBtn = document.getElementById('backHomeBtn');
+const finishBtn = document.getElementById('finishBtn');
+const restartBtn = document.getElementById('restartBtn');
+const shareBtn = document.getElementById('shareBtn');
+const backHubBtn = document.getElementById('backHubBtn');
+const finishFromPoem = document.getElementById('finishFromPoem');
+
+const orbItems = Array.from(document.querySelectorAll('.orb-item'));
+const mainPhoto = document.getElementById('mainPhoto');
+const poemThumb = document.getElementById('poemThumb');
+const poemHeading = document.getElementById('poemHeading');
+const poemBox = document.getElementById('poemBox');
+
+const bgm = document.getElementById('bgm');
+const bgmSource = document.getElementById('bgmSource');
+
+function showSection(id){
+  [intro,hub,poem,finish].forEach(s=> s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============================
+   Songs mapping (use your files)
+   ============================ */
+const SONGS = {
+  front: 'front.mp3',
+  surprise: 'surprise.mp3',
+  1: 'school.mp3',
+  2: 'strangers.mp3',
+  3: 'friends.mp3',
+  4: 'forever.mp3',
+  5: 'travel.mp3',
+  6: 'food.mp3',
+  7: 'bond.mp3',
+  8: 'outro.mp3'
+};
+
+function setSong(srcName, fade=0.6){
+  if(!srcName) return;
+  gsap.to(bgm, { volume:0, duration:fade, onComplete: ()=>{
+    bgm.pause();
+    bgmSource.src = srcName;
+    bgm.load();
+    bgm.loop = true;
+    bgm.volume = 0;
+    bgm.play().catch(()=>{ /* autoplay blocked possibly */ });
+    gsap.to(bgm, { volume:1, duration:fade });
+  }});
+}
+
+/* try autoplay front */
+window.addEventListener('load', ()=>{
+  setTimeout(()=> setSong(SONGS.front, 0.6), 300);
+});
+
+/* music toggle */
+musicBtn.addEventListener('click', ()=>{
+  if(bgm.paused){ bgm.play().catch(()=>{}); musicBtn.textContent='Music On ♪'; }
+  else { bgm.pause(); musicBtn.textContent='Play Music'; }
+});
+
+/* ============================
+   Navigation buttons
+   ============================ */
+enterBtn.addEventListener('click', ()=>{
+  setSong(SONGS.surprise);
+  showSection('hub');
+  gsap.from("#hubStage", { duration:1.1, opacity:0, y:20, ease:"power3.out" });
+});
+backHomeBtn.addEventListener('click', ()=> { setSong(SONGS.front); showSection('intro'); });
+backHubBtn.addEventListener('click', ()=> showSection('hub'));
+finishBtn.addEventListener('click', ()=> collectIntoEnvelope());
+finishFromPoem.addEventListener('click', ()=> finishBtn.click());
+restartBtn.addEventListener('click', ()=> { setSong(SONGS.front); showSection('intro'); });
+shareBtn.addEventListener('click', ()=> alert('Use browser share or take a screenshot to share this surprise.')); 
+
+/* ============================
+   Poems: full texts (from user)
+   ============================ */
+const poems = {
+  1: `রামপ্রসাদ বিদ্যালয়ের সেই দিন,
+শেষ দুই বছরের সোনার রঙে রঙিন।
+নতুন মুখে পেলাম এক হাসির আলো,
+বন্ধুত্বে গাঁথা হল দু’জনার ভালো।
+
+টিফিন বেল বাজলেই চোখে চোখে খেলা,
+তোমার সুজির ঘ্রাণে মন হত ভেলা।
+তুমি বলতি— “তোকে দিয়েই খাইয়ে দেবো!”
+আমি হেসে বলতাম— “আজ একটু বেশি নেবো!” 😄
+
+এক্সকার্শনের দিনে ইকো পার্কে ঘুরে,
+ছবিতে বন্দী হল দু’জনার সুরে।
+হাসির কলরবে ভরা সারা বিকেল,
+মেঘলা আকাশে বন্ধুত্বের মেল।
+
+দুই বছর— কিন্তু মনে কত গভীর,
+যেন শত বছর কেটে গেলো স্থির।
+তোমার হাসি, রাগ, কথা আর যত স্মৃতি,
+আজও বাজে মনে, নরম এক প্রীতি।
+
+সময় যাবে, পথ আলাদা হবে ঠিকই,
+তবু বন্ধুত্বের পাতায় নাম তোমারই লিখি।
+“রামপ্রসাদ বিদ্যাপীঠ” রাখবে সেই গল্প,
+যেখানে দু’টি প্রাণ গড়েছিল অনুপম রূপকল্প। 💫`,
+  2: `🌙 *"অপরিচিত থেকে প্রিয়"* 🌙
+
+একদিন আমরা ছিলাম— শুধু নাম, শুধু ছায়া,
+চেনা-অচেনার মাঝখানে থমকে থাকা মায়া।
+কথা হতো কম, চোখে ছিলো দ্বিধা,
+তবু মন জানতো— কিছু তো ঘটছে নিঃশব্দে বিদ্যা।
+
+দিন গেলো... এক মেসেজ, দুটো ইমোজি,
+আলাপ বাড়লো— হালকা, ধীরে, রোজই।
+“Good night” একদিন বদলে গেলো হাসিতে,
+“*Guddu nightu*” শুনে মন গলল আস্তে। 🌙
+
+“খেয়েছিস?” এখন হয় “*গিলসিস*”— কত মিষ্টি সেই সুর,
+শব্দের খেলায় বাঁধা পড়লো এক অদ্ভুত নুর।
+চ্যাটে হাসি, ভরসা, অভিমান, দুষ্টুমি,
+সব মিলে গড়ে উঠলো এক নিখাদ বন্ধুত্ব ভূমি। 💬
+
+কখন যে “তুই ভালো আছিস তো?”
+হয়ে গেলো “তুই থাক না, আমি তো আছি”— বোঝা গেলো হঠাৎই তো!
+প্রতিদিনের ছোট্ট মেসেজ, ভোরের শুভ সকাল,
+একটা “দেখা” না হলেও, উপস্থিতির আছে জোরাল কাল।
+
+আজ বুঝি, বন্ধুত্ব শুধু কথা নয়,
+এ এক অনুভব— যেখানে মন চুপিচুপি কাঁদে-হাসে,
+যেখানে দূরত্বও গলে যায়,
+যখন তুই বলিস — “গিলসিস?”,
+আর আমি হেসে বলি — “হ্যাঁ রে, গিলেছি!” ❤`,
+  3: `শুরুটা ছিল একেবারে সহজ,
+দু’জন— শুধু বন্ধু, হাসির মাঝখানে বেজে উঠত আজব সংযোগ।
+কথা ছিল ছোট, তবু মনে রাখার মতো,
+হাসির ভেতর লুকোনো ছিল অনুভব নিজের তো।
+
+দিন গেলো, গল্প বাড়লো,
+রাত জাগা কথায় মনটা কোথাও বাঁধলো।
+“তুই ছাড়া দিনটা কেমন লাগছে জানিস?”
+এই বাক্যেই বুঝলাম— কিছু বদলে যাচ্ছিস। 💫
+
+বন্ধু থেকে হঠাৎ সেরা বন্ধু,
+মন খুলে বলা, চুপচাপ বোঝা,
+কোনো ঝগড়া, কোনো দূরত্বও
+ভাঙতে পারেনি সেই সেতুর মোহনা।
+
+একদিন বুঝলাম— তুই না থাকলে আমি নেই,
+নিস্তব্ধ পৃথিবীতে রঙ মুছে যায় সেই।
+হাসি ফুরায়, রাত হয় ভার,
+একটা মেসেজ না এলেই মন হয় অচেনা, আঁধার। 🌙
+
+ধীরে ধীরে ‘আমি’ মুছে গেলো মৃদু করে,
+‘আমরা’ শব্দটা জেগে উঠল হৃদয়ের ঘরে।
+আর আজ, জীবনের পথে হাত রেখে একে অপরের,
+আমরা— শুধু বন্ধু নই, একে অপরের অস্তিত্বের কেন্দ্রের। ❤
+
+তুই আমি মিলে গড়েছি এক গল্প,
+যেখানে ভালোবাসা মানে— সাথের স্বপ্ন।
+এখন বুঝি, বন্ধুত্বই ছিল শুরু,
+ভালোবাসা— সেই গল্পের সুন্দর এক রূপকথা পুরনো-নতুন। 🌸`,
+  4: `Friend থেকে Forever 🌼
+
+প্রথমে তুই ছিলি কেবল পাশে,
+একটা হাসি, কিছু কথা, স্কুলের আবেশে।
+তখনও জানতাম না,
+এই ছোট্ট বন্ধুত্ব একদিন জীবন হয়ে দাঁড়াবে আমারই সামনে।
+
+দিন গেলো, কথা বাড়লো,
+রাগ-ভালোবাসা মিলিয়ে এক বন্ধন গড়লো।
+“Best friend” বলতাম মজা করে,
+কিন্তু মনের ভেতর তুই তখনই আপন ঘরে। 💖
+
+ঝগড়া হয়েছে, চুপ থেকেছি ঘন্টার পর ঘন্টা,
+তবু তুইই ফিরেছিস— “চল, চুপ থাকিস না।”
+তুই না থাকলে মনে হয় ফাঁকা,
+সব রঙ মুছে যায়, পৃথিবীটাও মলিন আঁকা। 🌧
+
+আজ বুঝি, বন্ধুত্বটা শুধু শব্দ নয়,
+এ এক প্রার্থনা— যা চিরকাল অটুট হয়।
+Best friend শুধু একটা সময়ের নাম,
+Forever friend— সেটা এক অনুভবের গ্রাম। 🌿
+
+তুই আছিস, মানেই শান্তি,
+তোর হাসিতেই আছে আমার দিনের প্রান্তি।
+জীবন বদলাবে, সময়ও যাবে উড়ে,
+তবু তুই আমি— থাকবো পাশাপাশি,
+যেভাবে রোদ থাকে মেঘের পিছু ধরে। ☀`,
+  5: `🌈 “আমাদের যাত্রা” 🌈
+
+শহরের ভিড়ে হেঁটে হেঁটে আমরা হেসেছি,
+হাত ধরেছি, কখনো ছেড়েছি, আবার ধরেছি।
+কফি হাউসের টেবিলে গল্পের ঢেউ,
+এক কাপ কফি আর এক ঝলক হাসি—
+এই হল আমাদের বিকেলের সুখ। ☕
+
+কলেজ স্ট্রিটের রাস্তায় বই আর চায়ের দোকান,
+তুই বলিস “একটু দাঁড়ি, ছবিটা তুলি তো।” 📸
+আমি হেসে বলি— “ঠিক আছে, কিন্তু হাসিও!”
+এভাবেই আমরা প্রতিটি পদক্ষেপে আনন্দ গুঁজেছি।
+
+ইকো পার্কে হ্রদের ধারে,
+হাওয়ায় উড়ছে চুল, আর আমরা উড়ছি মনের মতো। 🌿
+নিকো পার্কে রাইডে চিৎকার,
+তোর চোখে আনন্দ, আমার চোখে আনন্দ—
+মুহূর্তগুলো যেন থেমে গেছে এক রঙিন বুদবুদে। 🎢
+
+দুর্গাপুজোর প্যান্ডেলে আলো ঝলমল,
+ঢাকের তালে আমরা হেঁটে হেঁটে মিশেছি ভিড়ে। 🌸
+কাল্যাণী পার্কে সোনালি বিকেল,
+ঘাসের উপর বসে গল্পের ছোঁয়া। 🌳
+
+নন্দনে সিনেমার গন্ধ নয়,
+কেবল আমাদের হাঁসির রোলারকোস্টার। 🎞
+ভিক্টোরিয়ায় সূর্য ঢলে গেলে,
+আমরা একে অপরের পাশে—
+মনে হলো, পৃথিবীটা শুধু আমাদের জন্যই। 🌇`,
+  6: `আমি বলি— “চল একটু ভোগবিলাস করি, ঝাল আর মিষ্টি মিলিয়ে,
+একমাত্র উচ্চমানের ফ্লেভার খাই।” 😎
+তুমি হেসে বলো— “না রে, দেখি কম খরচেও মজা আছে,
+সুস্বাদে ভরা, ছোট ছোট মুহূর্ত আমাদের সাথে।” 😄
+
+তুই বেছে নাও সেই স্ট্রিট ফুডের ঝলক,
+আমি চাই আড়ম্বরপূর্ণ ডিশের ধাক্কা। 🍔🍟
+তবু যখন আমরা একসাথে বসি,
+সব ফ্লেভার যেন মিলিয়ে যায় এক হাসির ঢেউয়ে। 🌊
+
+তোর সুপারিশ করা ঠোঁটের স্বাদ,
+আমার ব্যয়বহুল খাওয়াটা, সব মিলিয়ে—
+বন্ধুত্বের প্লেটটা সম্পূর্ণ হয়,
+যেখানে “সাশ্রয়ী” আর “ভোগবিলাসী” দুইজন মিলেছে। 💛`,
+  7: `Every moment of ours are really special to me because it's only ours.
+Your presence makes me feel how lucky I am to have you as my closest one.
+Every second when I see you it feels special that someone like you is my best friend.
+I am always grateful towards God that he sent you for me.
+I will always be there behind you as your pillar — although you don't need a pillar,
+I will be there for you in every tough situation; you will find me beside you, like a shadow.
+A friend like you is priceless... thank you for being a part of my life.`,
+  8: `Our bond feels like it's God-gifted.
+Sometimes we feel we can't stay without each other, and sometimes we feel it's better to stay away — for each other's good.
+Sometimes it's like Oggy and Chocroces, sometimes Oggy and Aliviya.
+Sometimes you are the perfect one for me; nothing else, babe — you are always perfect for me.
+You mean my happiness, you mean my anger, you mean my freedom,
+you mean my strength, you mean my power, you mean my motivation,
+you mean my energy, you mean my world, you mean my everything...`
+};
+
+/* headings */
+const headings = {
+  1:'School Days',2:'Strangers to Friends',3:'Friends to Best Friends',4:'Best Friends to Forever',
+  5:'Travelling',6:'Fooding',7:'Special Moments',8:'The Bond'
+};
+
+/* handwriting reveal */
+let handwritingInterval = null;
+function reveal(text){
+  poemBox.textContent = '';
+  clearInterval(handwritingInterval);
+  let i = 0;
+  handwritingInterval = setInterval(()=>{
+    poemBox.textContent += text[i] || '';
+    poemBox.scrollTop = poemBox.scrollHeight;
+    i++;
+    if(i >= text.length) clearInterval(handwritingInterval);
+  }, 26);
+}
+
+/* ============================
+   Orbit positioning (no overlap)
+   - place 8 items evenly around a circle
+   - adjusts radius based on hubStage size
+   ============================ */
+function positionOrbit(){
+  const stage = document.getElementById('hubStage');
+  if(!stage) return;
+  const rect = stage.getBoundingClientRect();
+  const centerX = rect.left + rect.width/2;
+  const centerY = rect.top + rect.height/2;
+  // radius depends on width/height; keep safe margin
+  const minDim = Math.min(rect.width, rect.height);
+  const radius = Math.max( (minDim/2) - 160, 150 ); // ensures orbs stay outside main photo
+  const items = orbItems;
+  const n = items.length;
+  for(let i=0;i<n;i++){
+    const angle = (Math.PI*2) * (i / n) - Math.PI/2; // start at top
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+    const el = items[i];
+    // convert to stage-local coordinates (relative to document)
+    // position using transform to keep layout stable
+    const elW = el.offsetWidth || parseInt(getComputedStyle(el).width);
+    const elH = el.offsetHeight || parseInt(getComputedStyle(el).height);
+    // use fixed positioning relative to hubStage container
+    const stageRect = stage.getBoundingClientRect();
+    const left = x - stageRect.left - elW/2;
+    const top = y - stageRect.top - elH/2;
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+  }
+}
+
+/* call once + on resize */
+window.addEventListener('load', ()=> {
+  positionOrbit();
+  gsap.from(".orb-item", { duration:1.2, opacity:0, scale:0.7, stagger:0.06, ease:"back.out(1.2)" });
+});
+window.addEventListener('resize', ()=> positionOrbit());
+
+/* ============================
+   Orb interactions: hover, click (fly to poem)
+   ============================ */
+orbItems.forEach((el) => {
+  el.addEventListener('mouseenter', ()=> el.style.transform = 'scale(1.08)');
+  el.addEventListener('mouseleave', ()=> el.style.transform = 'scale(1)');
+  el.addEventListener('click', ()=> {
+    const id = parseInt(el.getAttribute('data-id'));
+    openPoemFor(id);
+  });
+  gsap.to(el, { y: Math.random()*12 - 6, duration:2 + Math.random()*2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:Math.random()*1.2 });
+});
+
+/* openPoemFor (clone orb, fly to top-right, change song, reveal poem) */
+function openPoemFor(id){
+  const orb = document.querySelector(`.orb-item[data-id="${id}"]`);
+  if(!orb) return;
+  const imgSrc = orb.querySelector('img').src;
+  const rect = orb.getBoundingClientRect();
+  const clone = orb.cloneNode(true);
+  document.body.appendChild(clone);
+  clone.style.position = 'fixed';
+  clone.style.left = rect.left + 'px';
+  clone.style.top = rect.top + 'px';
+  clone.style.width = rect.width + 'px';
+  clone.style.height = rect.height + 'px';
+  clone.style.borderRadius = getComputedStyle(orb).borderRadius;
+  clone.style.zIndex = 9999;
+  const targetX = window.innerWidth - 120;
+  const targetY = 32;
+  const songForPhoto = SONGS[id] || SONGS[8];
+  gsap.to(clone, { duration:0.9, left: targetX, top: targetY, width:110, height:110, rotation:6, ease:"power3.inOut", onComplete: ()=>{
+    poemThumb.src = imgSrc;
+    poemHeading.textContent = headings[id] || 'Memory';
+    showSection('poem');
+    reveal(poems[id] || '');
+    setSong(songForPhoto);
+    setTimeout(()=> clone.remove(), 300);
+  }});
+}
+
+/* ============================
+   Collect into envelope (choreographed)
+   ============================ */
+function collectIntoEnvelope(){
+  // ensure hub visible during animation
+  showSection('hub');
+  const envelopeCenterX = window.innerWidth/2;
+  const envelopeCenterY = window.innerHeight/2 + 20;
+  // animate clones for each orb
+  orbItems.forEach((orb, idx) => {
+    const rect = orb.getBoundingClientRect();
+    const clone = orb.cloneNode(true);
+    document.body.appendChild(clone);
+    clone.style.position = 'fixed';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    clone.style.borderRadius = getComputedStyle(orb).borderRadius;
+    clone.style.zIndex = 9999;
+    const delay = idx * 0.14;
+    gsap.to(clone, {
+      duration: 0.9,
+      delay: delay,
+      left: envelopeCenterX + (Math.random()*80 - 40),
+      top: envelopeCenterY + (Math.random()*30 - 15),
+      width: 60, height: 60, rotation: 360 * ( Math.random()>0.5 ? 1 : -1 ),
+      ease: "power2.inOut",
+      onComplete: ()=> {
+        gsap.to(clone, { scale:0.2, opacity:0, duration:0.35, onComplete: ()=> clone.remove() });
+      }
+    });
+  });
+  // after animation done, show envelope section with outro music and sparkles
+  const total = orbItems.length * 0.14 + 1.0;
+  setTimeout(()=> {
+    showSection('finish');
+    setSong(SONGS[8] || SONGS.outro);
+    const letter = document.getElementById('letter');
+    gsap.fromTo(letter, { scale:0.6, opacity:0 }, { scale:1, opacity:1, duration:1.2, ease:"elastic.out(1,0.6)" });
+    // spark burst
+    sparkBurst();
+  }, total*1000);
+}
+
+/* tiny spark burst */
+function sparkBurst(){
+  for(let i=0;i<22;i++){
+    const s = document.createElement('div');
+    s.style.position='fixed';
+    s.style.left = (window.innerWidth/2 + (Math.random()*200-100)) + 'px';
+    s.style.top = (window.innerHeight/2 + (Math.random()*80-40)) + 'px';
+    s.style.width = s.style.height = (6 + Math.random()*10) + 'px';
+    s.style.borderRadius = '50%';
+    s.style.background = `hsl(${320 + Math.random()*60}deg, 90%, 65%)`;
+    s.style.zIndex = 9999;
+    document.body.appendChild(s);
+    gsap.to(s, { duration: 1.3 + Math.random()*0.6, x: (Math.random()*300-150), y: (Math.random()*-400-50), opacity:0, scale:0.5, ease:"power2.out", onComplete: ()=> s.remove() });
+  }
+}
+
+/* initial animations */
+gsap.from("#mainTitle", { duration:1.4, y:-10, opacity:0, scale:0.98, ease:"power3.out" });
+gsap.from("#subtitle", { duration:1.6, y:10, opacity:0, delay:0.2 });
+gsap.from("#aditiName", { duration:1.2, scale:0.9, opacity:0, delay:0.35 });
+gsap.from(".heart-frame", { duration:1.2, scale:0.8, opacity:0, delay:0.3, ease:"back.out(1.2)" });
+gsap.to("#aditiName", { duration:2.2, y:-6, repeat:-1, yoyo:true, ease:"sine.inOut" });
+
+/* accessibility */
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') enterBtn.click(); });
+
+</script>
+</body>
+</html>
